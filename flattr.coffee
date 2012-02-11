@@ -195,11 +195,47 @@ class root.Flattr
     if not @options.access_token
       callback {"error": "missing_access_token"}, null
 
-    headers =
-      "Authorization": "Bearer #{@options.access_token}"
+    options =
+      headers:
+        "Authorization": "Bearer #{@options.access_token}"
 
     endpoint = "#{@api_endpoint}/things/#{id}/flattr"
-    @client.post endpoint, null, headers, callback
+
+    @client.post endpoint, null, options, callback
+
+  #
+  # ## _function_ flattrURL(url, username, callback)
+  #
+  # Flattr the given URL. If the URL is not already associated with a thing
+  # in the Flattr database this won't work without supplying a username.
+  #
+  # Set `username` to false if you don't want to use the auto submit
+  # functionality to flattr URLs that do not match a thing.
+  #
+  # **Requires authentication with scope _flattr_**
+  #
+  flattrURL: (url, username, callback) ->
+    if not @options.access_token
+      callback {"error": "missing_access_token"}, null
+
+    options =
+      headers:
+        "Authorization": "Bearer #{@options.access_token}"
+
+    if arguments.length == 2
+      callback = username
+      username = true
+
+    if username
+      url = "http://flattr.com/submit/auto?url=" + encodeURIComponent url
+      url += "&user_id=" + encodeURIComponent username
+
+    parameters =
+      url: url
+
+    console.log parameters
+
+    @client.post "#{@api_endpoint}/flattr", parameters, options, callback
 
 # ---------------------------------------------------------------------------
 

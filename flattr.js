@@ -117,17 +117,45 @@
       return this.client.get("" + this.api_endpoint + "/user/flattrs", null, headers, callback);
     };
     Flattr.prototype.flattrThing = function(id, callback) {
-      var endpoint, headers;
+      var endpoint, options;
       if (!this.options.access_token) {
         callback({
           "error": "missing_access_token"
         }, null);
       }
-      headers = {
-        "Authorization": "Bearer " + this.options.access_token
+      options = {
+        headers: {
+          "Authorization": "Bearer " + this.options.access_token
+        }
       };
       endpoint = "" + this.api_endpoint + "/things/" + id + "/flattr";
-      return this.client.post(endpoint, null, headers, callback);
+      return this.client.post(endpoint, null, options, callback);
+    };
+    Flattr.prototype.flattrURL = function(url, username, callback) {
+      var options, parameters;
+      if (!this.options.access_token) {
+        callback({
+          "error": "missing_access_token"
+        }, null);
+      }
+      options = {
+        headers: {
+          "Authorization": "Bearer " + this.options.access_token
+        }
+      };
+      if (arguments.length === 2) {
+        callback = username;
+        username = true;
+      }
+      if (username) {
+        url = "http://flattr.com/submit/auto?url=" + encodeURIComponent(url);
+        url += "&user_id=" + encodeURIComponent(username);
+      }
+      parameters = {
+        url: url
+      };
+      console.log(parameters);
+      return this.client.post("" + this.api_endpoint + "/flattr", parameters, options, callback);
     };
     Flattr.prototype.user = function(username, callback) {
       var endpoint;
