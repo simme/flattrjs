@@ -334,7 +334,7 @@ class root.Flattr
       client_id: @options.key
 
     if scopes.length > 0
-      parameters.scopes = scopes.join ' '
+      parameters.scope = scopes.join ' '
 
     queryparts = []
     for p, v of parameters

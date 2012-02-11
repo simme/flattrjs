@@ -195,7 +195,7 @@
         client_id: this.options.key
       };
       if (scopes.length > 0) {
-        parameters.scopes = scopes.join(' ');
+        parameters.scope = scopes.join(' ');
       }
       queryparts = [];
       for (p in parameters) {
