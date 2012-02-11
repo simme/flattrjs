@@ -1,0 +1,16 @@
+{   "author": "Simon Ljungberg <hi@iamsim.me> (http://iamsim.me)"
+  , "name": "flattrjs"
+  , "description": "Wrapper on top of the Flattr API"
+  , "version": "0.0.5"
+  , "homepage": "https://github.com/simme/flattrjs/"
+  , "repository": {
+      "type": "git"
+      , "url": "git://github.com/simme/flattrjs.git"
+    }
+  , "main": "flattr.js"
+  , "engines": {
+      "node": "~0.6.7"
+    }
+  , "dependencies": {}
+  , "devDependencies": {}
+}
