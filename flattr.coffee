@@ -3,38 +3,8 @@
 #
 # JavaScript client for accessing the Flattr API.
 #
-# See (flattr.net)[http://developers.flattr.net/api/] for API documentation.
-#
-# * Request functionality
-#   HTTP client to fetch and post data from Flattr. Needs to be pluggable to
-#   support both browser and server environment.
-#
-# * Authorization
-#   Authorization helpers.
-#
-# * Flattrs
-#
-#   Implementation of the Flattrs resource.
-#
-# * Things
-#
-#   Implementation of the Things resource.
-#
-# * Users
-#
-#   Implementation of the Users resource.
-#
-# * Activities
-#
-#   Implementation of the Activities resource.
-#
-# * Categories
-#
-#   Implementation of the Categories resource.
-#
-# * Languages
-#
-#   Implementation of the Language resource.
+# See the [Flattr API Docs](http://developers.flattr.net/api/)
+# for API documentation.
 #
 
 root = exports ? window
@@ -49,15 +19,9 @@ class root.Flattr
   constructor: (@options = {}) ->
     @api_endpoint = "https://api.flattr.com/rest/v2"
 
-    # If we got a key and secret we are able to authorize
-    if @options.key? and @options.secret?
-      @canAuthorize = true
-
-    # If we got an access token we are already authorized
     if @options.accessToken?
       @isAuthorized = true
 
-    # Get our HTTP client
     if @options.client == 'NodeHTTP'
       @client = new NodeHTTP()
 
@@ -135,7 +99,7 @@ class root.Flattr
   #   * `query` is the string to search for.
   #   * `url` filter search results by their URL
   #   * `tags` either an array of tags to include or a string in the format
-  #     described on (Flattr API Docs)[http://developers.flattr.net/api/resources/things/#search-things].
+  #     described in the [Flattr API Docs](http://developers.flattr.net/api/resources/things/#search-things).
   #   * `language` filter by language.
   #   * `category` the name of a category to filter by, or an array with
   #     multiple categories.
@@ -150,11 +114,9 @@ class root.Flattr
   search: (options, callback) ->
     endpoint = "#{@api_endpoint}/things/search"
 
-    # Merge tags to a single string, defaults to the & operator.
     if options.tags? && options.tags.constructor == Array
       options.tags = options.tags.join(' & ')
 
-    # Concatenate categories
     if options.categories? && options.categories.constructor == Array
       options.categories = options.categories.join(',')
 
@@ -208,6 +170,37 @@ class root.Flattr
     parameters.count = count if count
     @client.get endpoint, parameters, callback
 
+  #
+  # ## _function_ currentUsersFlattrs(callback)
+  #
+  # Retrieve the current users flattrs.
+  #
+  currentUsersFlattrs: (callback) ->
+    if not @options.access_token
+      callback {"error": "missing_access_token"}, null
+
+    headers =
+      "Authorization": "Bearer #{@options.access_token}"
+
+    @client.get "#{@api_endpoint}/user/flattrs", null, headers, callback
+
+  #
+  # ## _function_ flattrThing(id, callback)
+  #
+  # Flattr the given thing.
+  #
+  # **Requires authentication with scope _flattr_**
+  #
+  flattrThing: (id, callback) ->
+    if not @options.access_token
+      callback {"error": "missing_access_token"}, null
+
+    headers =
+      "Authorization": "Bearer #{@options.access_token}"
+
+    endpoint = "#{@api_endpoint}/things/#{id}/flattr"
+    @client.post endpoint, null, headers, callback
+
 # ---------------------------------------------------------------------------
 
   #
@@ -225,6 +218,21 @@ class root.Flattr
     endpoint = "#{@api_endpoint}/users/#{username}"
 
     @client.get endpoint, callback
+
+  #
+  # ## _function_ currentUser(callback)
+  #
+  # Get information for the currently authorized user. Requires an access
+  # token from Flattr.
+  #
+  currentUser: (callback) ->
+    if not @options.access_token
+      callback {"error": "missing_access_token"}, null
+
+    headers =
+      "Authorization": "Bearer #{@options.access_token}"
+
+    @client.get "#{@api_endpoint}/user", null, headers, callback
 
 # ---------------------------------------------------------------------------
 
@@ -257,11 +265,67 @@ class root.Flattr
   languages: (callback) ->
     @client.get "#{@api_endpoint}/languages", callback
 
+# ---------------------------------------------------------------------------
+
+  #
+  # # Auhtorization helpers
+  #
+  # Helpers for authorizing your app.
+  #
+
+  #
+  # ## _function_ authenticate(scopes = [])
+  #
+  # Generates a URL that you need to redirect your user to. The user will
+  # then be asked by Flattr to authorize your app. Once the user has
+  # authorized your app he or she will be redirect to the URL you've,
+  # specified in your Flattr app settings.
+  #
+  # Flattr will send a `code` parameter together with the redirect. You will
+  # need to give that code to the `getAccessToken` function below.
+  #
+  # You will need to intialize your _Flattr API Client_ with a client `key`
+  # for this function to work.
+  #
+  # For more information checkout the [docs](http://developers.flattr.net/api/#authenticate).
+  #
+  authenticate: (scopes = []) ->
+    parameters =
+      response_type: 'code'
+      client_id: @options.key
+
+    if scopes.length > 0
+      parameters.scopes = scopes.join ' '
+
+    queryparts = []
+    for p, v of parameters
+      queryparts.push encodeURIComponent(p) + '=' + encodeURIComponent(v)
+
+    querystring = queryparts.join '&'
+
+    return "http://flattr.com/oauth/authorize?#{querystring}"
+
+  #
+  # ## _function_ getAccessToken(code)
+  #
+  # Generate an `access_token` from the `code` returned from Flattr.
+  #
+  getAccessToken: (code) ->
+    options =
+      auth: "#{@options.key}:#{@options.secret}"
+
+    parameters =
+      code: code
+      grant_type: "authorization_code"
+      redirect_uri: "http://127.0.0.1:1337"
+
+    @client.post "https://flattr.com/oauth/token", parameters, options, () ->
+
 
 # ---------------------------------------------------------------------------
 
 #
-# HTTP Client plugins.
+# # HTTP Client plugins.
 #
 # The HTTP client plugins all follow a simple pattern. Methods named after
 # the different HTTP methods `get`, `post`, etc. The method takes four
@@ -269,23 +333,25 @@ class root.Flattr
 #
 # * Endpoint
 #
-#   The url string of the endpoint, *exluding https://api.flattr.com/rest/v2*.
+#   Endpoint URL string.
 #
 # * Parameters
 #
 #   Parameters to accompany the request. **POST** and **GET** data etc.
 #
-# * Arguments
+# * Options
 #
-#   Headers 'n stuff.
+#   HTTP headers to send with the request and other fun stuff.
 #
 # * Callback
 #
-#   A callback that takes to arguments, `error` and `data`.
+#   A callback that takes two arguments, `error` and `data`.
 #
 
 #
 # # NodeJS HTTP client
+#
+# Serverside client based on the NodeJS HTTP client.
 #
 class NodeHTTP
   constructor: () ->
@@ -294,7 +360,7 @@ class NodeHTTP
     @q    = require 'querystring'
 
   #
-  # _function_ get(endpoint, [parameters, headers], callback)
+  # ## _function_ get(endpoint, [parameters, headers], callback)
   #
   # Wraps the HTTP get request method.
   #
@@ -330,4 +396,43 @@ class NodeHTTP
       res.on 'error', (error) ->
         callback error, null
 
+  #
+  # ## _function_ post(endpoint, [parameters, options], callback)
+  #
+  # Wraps the HTTP post request method.
+  #
+  post: (endpoint, parameters, options, callback) ->
+    if arguments.length == 3
+      callback = options;
+      options = null
+    else if arguments.length == 2
+      callback = parameters
+      options = null
+      parameters = null
 
+    urlParts = @url.parse endpoint
+    postData = if parameters then @q.stringify parameters else ''
+
+    options.host = urlParts.host
+    options.path = urlParts.path
+    options.port = 443
+    options.method = 'POST'
+    options.headers =
+      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Length': postData.length
+
+    request = @http.request options, (res) ->
+      data = ''
+      res.setEncoding 'utf8'
+      res.on 'data', (chunk) ->
+        data += chunk
+
+      res.on 'end', () ->
+        console.log data
+        callback null, JSON.parse data
+
+      res.on 'error', (error) ->
+        callback error, null
+
+    request.write postData
+    request.end()

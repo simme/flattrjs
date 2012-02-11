@@ -5,9 +5,6 @@
     function Flattr(options) {
       this.options = options != null ? options : {};
       this.api_endpoint = "https://api.flattr.com/rest/v2";
-      if ((this.options.key != null) && (this.options.secret != null)) {
-        this.canAuthorize = true;
-      }
       if (this.options.accessToken != null) {
         this.isAuthorized = true;
       }
@@ -107,16 +104,85 @@
       }
       return this.client.get(endpoint, parameters, callback);
     };
+    Flattr.prototype.currentUsersFlattrs = function(callback) {
+      var headers;
+      if (!this.options.access_token) {
+        callback({
+          "error": "missing_access_token"
+        }, null);
+      }
+      headers = {
+        "Authorization": "Bearer " + this.options.access_token
+      };
+      return this.client.get("" + this.api_endpoint + "/user/flattrs", null, headers, callback);
+    };
+    Flattr.prototype.flattrThing = function(id, callback) {
+      var endpoint, headers;
+      if (!this.options.access_token) {
+        callback({
+          "error": "missing_access_token"
+        }, null);
+      }
+      headers = {
+        "Authorization": "Bearer " + this.options.access_token
+      };
+      endpoint = "" + this.api_endpoint + "/things/" + id + "/flattr";
+      return this.client.post(endpoint, null, headers, callback);
+    };
     Flattr.prototype.user = function(username, callback) {
       var endpoint;
       endpoint = "" + this.api_endpoint + "/users/" + username;
       return this.client.get(endpoint, callback);
+    };
+    Flattr.prototype.currentUser = function(callback) {
+      var headers;
+      if (!this.options.access_token) {
+        callback({
+          "error": "missing_access_token"
+        }, null);
+      }
+      headers = {
+        "Authorization": "Bearer " + this.options.access_token
+      };
+      return this.client.get("" + this.api_endpoint + "/user", null, headers, callback);
     };
     Flattr.prototype.categories = function(callback) {
       return this.client.get("" + this.api_endpoint + "/categories", callback);
     };
     Flattr.prototype.languages = function(callback) {
       return this.client.get("" + this.api_endpoint + "/languages", callback);
+    };
+    Flattr.prototype.authenticate = function(scopes) {
+      var p, parameters, queryparts, querystring, v;
+      if (scopes == null) {
+        scopes = [];
+      }
+      parameters = {
+        response_type: 'code',
+        client_id: this.options.key
+      };
+      if (scopes.length > 0) {
+        parameters.scopes = scopes.join(' ');
+      }
+      queryparts = [];
+      for (p in parameters) {
+        v = parameters[p];
+        queryparts.push(encodeURIComponent(p) + '=' + encodeURIComponent(v));
+      }
+      querystring = queryparts.join('&');
+      return "http://flattr.com/oauth/authorize?" + querystring;
+    };
+    Flattr.prototype.getAccessToken = function(code) {
+      var options, parameters;
+      options = {
+        auth: "" + this.options.key + ":" + this.options.secret
+      };
+      parameters = {
+        code: code,
+        grant_type: "authorization_code",
+        redirect_uri: "http://127.0.0.1:1337"
+      };
+      return this.client.post("https://flattr.com/oauth/token", parameters, options, function() {});
     };
     return Flattr;
   })();
@@ -159,6 +225,44 @@
           return callback(error, null);
         });
       });
+    };
+    NodeHTTP.prototype.post = function(endpoint, parameters, options, callback) {
+      var postData, request, urlParts;
+      if (arguments.length === 3) {
+        callback = options;
+        options = null;
+      } else if (arguments.length === 2) {
+        callback = parameters;
+        options = null;
+        parameters = null;
+      }
+      urlParts = this.url.parse(endpoint);
+      postData = parameters ? this.q.stringify(parameters) : '';
+      options.host = urlParts.host;
+      options.path = urlParts.path;
+      options.port = 443;
+      options.method = 'POST';
+      options.headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': postData.length
+      };
+      request = this.http.request(options, function(res) {
+        var data;
+        data = '';
+        res.setEncoding('utf8');
+        res.on('data', function(chunk) {
+          return data += chunk;
+        });
+        res.on('end', function() {
+          console.log(data);
+          return callback(null, JSON.parse(data));
+        });
+        return res.on('error', function(error) {
+          return callback(error, null);
+        });
+      });
+      request.write(postData);
+      return request.end();
     };
     return NodeHTTP;
   })();
