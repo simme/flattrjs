@@ -306,11 +306,11 @@ class root.Flattr
     return "http://flattr.com/oauth/authorize?#{querystring}"
 
   #
-  # ## _function_ getAccessToken(code)
+  # ## _function_ getAccessToken(code, callback)
   #
   # Generate an `access_token` from the `code` returned from Flattr.
   #
-  getAccessToken: (code) ->
+  getAccessToken: (code, callback) ->
     options =
       auth: "#{@options.key}:#{@options.secret}"
 
@@ -319,7 +319,8 @@ class root.Flattr
       grant_type: "authorization_code"
       redirect_uri: "http://127.0.0.1:1337"
 
-    @client.post "https://flattr.com/oauth/token", parameters, options, () ->
+    endpoint = "https://flattr.com/oauth/token"
+    @client.post endpoint, parameters, options, callback
 
 
 # ---------------------------------------------------------------------------
@@ -383,8 +384,6 @@ class NodeHTTP
       method: 'GET'
       headers: headers
 
-    console.log options
-
     @http.get options, (res) ->
       data = ''
       res.on 'data', (chunk) ->
@@ -404,11 +403,11 @@ class NodeHTTP
   post: (endpoint, parameters, options, callback) ->
     if arguments.length == 3
       callback = options;
-      options = null
+      options = {}
     else if arguments.length == 2
       callback = parameters
-      options = null
-      parameters = null
+      options = {}
+      parameters = {}
 
     urlParts = @url.parse endpoint
     postData = if parameters then @q.stringify parameters else ''
@@ -417,9 +416,10 @@ class NodeHTTP
     options.path = urlParts.path
     options.port = 443
     options.method = 'POST'
-    options.headers =
-      'Content-Type': 'application/x-www-form-urlencoded'
-      'Content-Length': postData.length
+    options.headers = options.headers or {}
+
+    options.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+    options.headers['Content-Length'] = postData.length
 
     request = @http.request options, (res) ->
       data = ''

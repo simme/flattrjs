@@ -172,8 +172,8 @@
       querystring = queryparts.join('&');
       return "http://flattr.com/oauth/authorize?" + querystring;
     };
-    Flattr.prototype.getAccessToken = function(code) {
-      var options, parameters;
+    Flattr.prototype.getAccessToken = function(code, callback) {
+      var endpoint, options, parameters;
       options = {
         auth: "" + this.options.key + ":" + this.options.secret
       };
@@ -182,7 +182,8 @@
         grant_type: "authorization_code",
         redirect_uri: "http://127.0.0.1:1337"
       };
-      return this.client.post("https://flattr.com/oauth/token", parameters, options, function() {});
+      endpoint = "https://flattr.com/oauth/token";
+      return this.client.post(endpoint, parameters, options, callback);
     };
     return Flattr;
   })();
@@ -211,7 +212,6 @@
         method: 'GET',
         headers: headers
       };
-      console.log(options);
       return this.http.get(options, function(res) {
         var data;
         data = '';
@@ -230,11 +230,11 @@
       var postData, request, urlParts;
       if (arguments.length === 3) {
         callback = options;
-        options = null;
+        options = {};
       } else if (arguments.length === 2) {
         callback = parameters;
-        options = null;
-        parameters = null;
+        options = {};
+        parameters = {};
       }
       urlParts = this.url.parse(endpoint);
       postData = parameters ? this.q.stringify(parameters) : '';
@@ -242,10 +242,9 @@
       options.path = urlParts.path;
       options.port = 443;
       options.method = 'POST';
-      options.headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': postData.length
-      };
+      options.headers = options.headers || {};
+      options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+      options.headers['Content-Length'] = postData.length;
       request = this.http.request(options, function(res) {
         var data;
         data = '';
