@@ -61,8 +61,13 @@ class root.Flattr
   # Returns one single thing with the given _id_.
   #
   thing: (id, callback) ->
+    headers = {}
+    if @options.access_token
+      headers =
+        "Authorization": "Bearer #{@options.access_token}"
+
     endpoint = "#{@api_endpoint}/things/#{id}"
-    @client.get endpoint, callback
+    @client.get endpoint, null, headers, callback
 
   #
   # ## _function_ things(ids, callback)
@@ -76,7 +81,7 @@ class root.Flattr
     parameters =
       id: ids.join(',')
 
-    @client.get endpoint, parameters, callback
+    @client.get endpoint, parameters, headers, callback
 
   #
   # ## _function_ lookup(url, callback)
@@ -232,8 +237,6 @@ class root.Flattr
 
     parameters =
       url: url
-
-    console.log parameters
 
     @client.post "#{@api_endpoint}/flattr", parameters, options, callback
 
@@ -403,7 +406,7 @@ class NodeHTTP
   #
   get: (endpoint, parameters, headers, callback) ->
     if arguments.length == 3
-      callback = headers;
+      callback = headers
       headers = null
     else if arguments.length == 2
       callback = parameters
@@ -420,7 +423,7 @@ class NodeHTTP
       method: 'GET'
       headers: headers
 
-    @http.get options, (res) ->
+    req = @http.get options, (res) ->
       data = ''
       res.on 'data', (chunk) ->
         data += chunk
@@ -464,7 +467,6 @@ class NodeHTTP
         data += chunk
 
       res.on 'end', () ->
-        console.log data
         callback null, JSON.parse data
 
       res.on 'error', (error) ->

@@ -33,9 +33,15 @@
       return this.client.get(endpoint, parameters, callback);
     };
     Flattr.prototype.thing = function(id, callback) {
-      var endpoint;
+      var endpoint, headers;
+      headers = {};
+      if (this.options.access_token) {
+        headers = {
+          "Authorization": "Bearer " + this.options.access_token
+        };
+      }
       endpoint = "" + this.api_endpoint + "/things/" + id;
-      return this.client.get(endpoint, callback);
+      return this.client.get(endpoint, null, headers, callback);
     };
     Flattr.prototype.things = function(ids, callback) {
       var endpoint, parameters;
@@ -43,7 +49,7 @@
       parameters = {
         id: ids.join(',')
       };
-      return this.client.get(endpoint, parameters, callback);
+      return this.client.get(endpoint, parameters, headers, callback);
     };
     Flattr.prototype.lookup = function(url, callback) {
       var endpoint, parameters;
@@ -154,7 +160,6 @@
       parameters = {
         url: url
       };
-      console.log(parameters);
       return this.client.post("" + this.api_endpoint + "/flattr", parameters, options, callback);
     };
     Flattr.prototype.user = function(username, callback) {
@@ -222,7 +227,7 @@
       this.q = require('querystring');
     }
     NodeHTTP.prototype.get = function(endpoint, parameters, headers, callback) {
-      var options, querystring, urlParts;
+      var options, querystring, req, urlParts;
       if (arguments.length === 3) {
         callback = headers;
         headers = null;
@@ -240,7 +245,7 @@
         method: 'GET',
         headers: headers
       };
-      return this.http.get(options, function(res) {
+      return req = this.http.get(options, function(res) {
         var data;
         data = '';
         res.on('data', function(chunk) {
@@ -281,7 +286,6 @@
           return data += chunk;
         });
         res.on('end', function() {
-          console.log(data);
           return callback(null, JSON.parse(data));
         });
         return res.on('error', function(error) {
