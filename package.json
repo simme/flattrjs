@@ -9,7 +9,7 @@
     }
   , "main": "flattr.js"
   , "engines": {
-      "node": "~0.6.7"
+      "node": "~0.6.0"
     }
   , "dependencies": {}
   , "devDependencies": {}
