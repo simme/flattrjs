@@ -5,11 +5,10 @@
     function Flattr(options) {
       this.options = options != null ? options : {};
       this.api_endpoint = "https://api.flattr.com/rest/v2";
-      if (this.options.accessToken != null) {
-        this.isAuthorized = true;
-      }
       if (this.options.client === 'NodeHTTP') {
         this.client = new NodeHTTP();
+      } else if (typeof this.options.client === 'object') {
+        this.client = this.options.client;
       }
     }
     Flattr.prototype.thingsByUser = function(username, count, page, callback) {
@@ -31,6 +30,18 @@
         parameters.page = page;
       }
       return this.client.get(endpoint, parameters, callback);
+    };
+    Flattr.prototype.currentUsersThings = function(callback) {
+      var headers;
+      if (!this.options.access_token) {
+        callback({
+          error: 'missing_access_token'
+        });
+      }
+      headers = {
+        "Authorization": "Bearer " + this.options.access_token
+      };
+      return this.client.get("" + this.api_endpoint + "/user/things", null, headers, callback);
     };
     Flattr.prototype.thing = function(id, callback) {
       var endpoint, headers;

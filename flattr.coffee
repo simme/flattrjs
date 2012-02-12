@@ -55,6 +55,20 @@ class root.Flattr
     @client.get endpoint, parameters, callback
 
   #
+  # ## _function_ currentUsersThings(callback)
+  #
+  # Returns the authenticated users things
+  #
+  currentUsersThings: (callback) ->
+    if not @options.access_token
+      callback {error: 'missing_access_token'}
+
+    headers =
+      "Authorization": "Bearer #{@options.access_token}"
+
+    @client.get "#{@api_endpoint}/user/things", null, headers, callback
+
+  #
   # ## _function_ thing(id, callback)
   #
   # Returns one single thing with the given _id_.
