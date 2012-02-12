@@ -94,6 +94,11 @@ class root.Flattr
     parameters =
       id: ids.join(',')
 
+    headers = {}
+    if @options.access_token
+      headers =
+        "Authorization": "Bearer #{@options.access_token}"
+
     @client.get endpoint, parameters, headers, callback
 
   #
