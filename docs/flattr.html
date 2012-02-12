@@ -10,11 +10,10 @@ for API documentation.</p>             </td>             <td class="code">      
 <p>Setup the client to access Flattr.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">constructor: </span><span class="nf">(@options = {}) -&gt;</span>
     <span class="vi">@api_endpoint = </span><span class="s2">&quot;https://api.flattr.com/rest/v2&quot;</span>
 
-    <span class="k">if</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">accessToken</span><span class="o">?</span>
-      <span class="vi">@isAuthorized = </span><span class="kc">true</span>
-
     <span class="k">if</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">client</span> <span class="o">==</span> <span class="s1">&#39;NodeHTTP&#39;</span>
-      <span class="vi">@client = </span><span class="k">new</span> <span class="nx">NodeHTTP</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <hr />             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <h1>Things</h1>
+      <span class="vi">@client = </span><span class="k">new</span> <span class="nx">NodeHTTP</span><span class="p">()</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="k">typeof</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">client</span> <span class="o">==</span> <span class="s1">&#39;object&#39;</span>
+      <span class="vi">@client = </span><span class="nx">@options</span><span class="p">.</span><span class="nx">client</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <hr />             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <h1>Things</h1>
 
 <p>Functions for interacting with the <strong>things</strong> resource.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <h2><em>function</em> thingsByUser(username[, count, page], callback)</h2>
 
@@ -33,7 +32,16 @@ for API documentation.</p>             </td>             <td class="code">      
     <span class="nv">parameters = </span><span class="p">{}</span>
     <span class="nv">parameters.count = </span><span class="nx">count</span> <span class="k">if</span> <span class="nx">count</span>
     <span class="nv">parameters.page  = </span><span class="nx">page</span>  <span class="k">if</span> <span class="nx">count</span>
-    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <h2><em>function</em> thing(id, callback)</h2>
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <h2><em>function</em> currentUsersThings(callback)</h2>
+
+<p>Returns the authenticated users things</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">currentUsersThings: </span><span class="nf">(callback) -&gt;</span>
+    <span class="k">if</span> <span class="o">not</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">access_token</span>
+      <span class="nx">callback</span> <span class="p">{</span><span class="nv">error: </span><span class="s1">&#39;missing_access_token&#39;</span><span class="p">}</span>
+
+    <span class="nv">headers =</span>
+      <span class="s2">&quot;Authorization&quot;</span><span class="o">:</span> <span class="s2">&quot;Bearer #{@options.access_token}&quot;</span>
+
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="s2">&quot;#{@api_endpoint}/user/things&quot;</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">headers</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <h2><em>function</em> thing(id, callback)</h2>
 
 <p>Returns one single thing with the given <em>id</em>.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">thing: </span><span class="nf">(id, callback) -&gt;</span>
     <span class="nv">headers = </span><span class="p">{}</span>
@@ -42,7 +50,7 @@ for API documentation.</p>             </td>             <td class="code">      
         <span class="s2">&quot;Authorization&quot;</span><span class="o">:</span> <span class="s2">&quot;Bearer #{@options.access_token}&quot;</span>
 
     <span class="nv">endpoint = </span><span class="s2">&quot;#{@api_endpoint}/things/#{id}&quot;</span>
-    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">headers</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <h2><em>function</em> things(ids, callback)</h2>
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">headers</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <h2><em>function</em> things(ids, callback)</h2>
 
 <p>Takes an array of <code>ids</code> and fetches things with those IDs.</p>
 
@@ -51,7 +59,12 @@ for API documentation.</p>             </td>             <td class="code">      
     <span class="nv">parameters =</span>
       <span class="nv">id: </span><span class="nx">ids</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
 
-    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">,</span> <span class="nx">headers</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <h2><em>function</em> lookup(url, callback)</h2>
+    <span class="nv">headers = </span><span class="p">{}</span>
+    <span class="k">if</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">access_token</span>
+      <span class="nv">headers =</span>
+        <span class="s2">&quot;Authorization&quot;</span><span class="o">:</span> <span class="s2">&quot;Bearer #{@options.access_token}&quot;</span>
+
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">,</span> <span class="nx">headers</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <h2><em>function</em> lookup(url, callback)</h2>
 
 <p>Checks if the given <em>url</em> is registred as a thing.</p>
 
@@ -60,7 +73,7 @@ for API documentation.</p>             </td>             <td class="code">      
     <span class="nv">parameters =</span>
       <span class="nv">url: </span><span class="nx">url</span>
 
-    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <h2><em>function</em> search(query, options, callback)</h2>
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <h2><em>function</em> search(query, options, callback)</h2>
 
 <ul>
 <li><code>options</code> on object containing search parameters.
@@ -87,9 +100,32 @@ multiple categories.</li>
     <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">categories</span><span class="o">?</span> <span class="o">&amp;&amp;</span> <span class="nx">options</span><span class="p">.</span><span class="nx">categories</span><span class="p">.</span><span class="nx">constructor</span> <span class="o">==</span> <span class="nb">Array</span>
       <span class="nv">options.categories = </span><span class="nx">options</span><span class="p">.</span><span class="nx">categories</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
 
-    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <hr />             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <h1>Flattrs</h1>
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <h2><em>function</em> createThing(parameters, callback)</h2>
 
-<p>Functions for interacting with the <strong>flattrs</strong> resource.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <h2><em>function</em> userFlattrs(username, count, page, callback)</h2>
+<ul>
+<li><code>url</code> the thing's URL.</li>
+<li><code>title</code> the thing's title.</li>
+<li><code>description</code> the thing's description.</li>
+<li><code>category</code> the thing's category.</li>
+<li><code>language</code> the thing's language.</li>
+<li><code>tags</code> an array of tags.</li>
+<li><code>hidden</code> true if this thing is hidden.</li>
+</ul>
+
+<p><em>All the parameters except <strong>URL</strong> is optional.</em></p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">createThing: </span><span class="nf">(parameters, callback) -&gt;</span>
+    <span class="k">if</span> <span class="o">not</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">access_token</span>
+      <span class="nx">callback</span> <span class="p">{</span><span class="nv">error: </span><span class="s1">&#39;missing_access_token&#39;</span><span class="p">}</span>
+
+    <span class="nv">options =</span>
+      <span class="nv">headers:</span>
+        <span class="s2">&quot;Authorization&quot;</span><span class="o">:</span> <span class="s2">&quot;Bearer #{@options.access_token}&quot;</span>
+
+    <span class="k">if</span> <span class="nx">parameters</span><span class="p">.</span><span class="nx">tags</span>
+      <span class="nv">parameters.tags = </span><span class="nx">parameters</span><span class="p">.</span><span class="nx">tags</span><span class="p">.</span><span class="nx">join</span> <span class="s1">&#39;,&#39;</span>
+
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">post</span> <span class="s2">&quot;#{@api_endpoint}/things&quot;</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <hr />             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <h1>Flattrs</h1>
+
+<p>Functions for interacting with the <strong>flattrs</strong> resource.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <h2><em>function</em> userFlattrs(username, count, page, callback)</h2>
 
 <p>List a user's flattrs.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">userFlattrs: </span><span class="nf">(username, count, page, callback) -&gt;</span>
     <span class="k">if</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">3</span>
@@ -104,7 +140,7 @@ multiple categories.</li>
     <span class="nv">parameters = </span><span class="p">{}</span>
     <span class="nv">parameters.page  = </span><span class="nx">page</span> <span class="k">if</span> <span class="nx">page</span>
     <span class="nv">parameters.count = </span><span class="nx">count</span> <span class="k">if</span> <span class="nx">count</span>
-    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <h2><em>function</em> thingFlattrs(id, count, page, callback)</h2>
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-15">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-15">&#182;</a>               </div>               <h2><em>function</em> thingFlattrs(id, count, page, callback)</h2>
 
 <p>List a thing's flattrs.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">thingFlattrs: </span><span class="nf">(id, count, page, callback) -&gt;</span>
     <span class="k">if</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">3</span>
@@ -119,7 +155,7 @@ multiple categories.</li>
     <span class="nv">parameters = </span><span class="p">{}</span>
     <span class="nv">parameters.page  = </span><span class="nx">page</span> <span class="k">if</span> <span class="nx">page</span>
     <span class="nv">parameters.count = </span><span class="nx">count</span> <span class="k">if</span> <span class="nx">count</span>
-    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <h2><em>function</em> currentUsersFlattrs(callback)</h2>
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <h2><em>function</em> currentUsersFlattrs(callback)</h2>
 
 <p>Retrieve the current users flattrs.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">currentUsersFlattrs: </span><span class="nf">(callback) -&gt;</span>
     <span class="k">if</span> <span class="o">not</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">access_token</span>
@@ -128,7 +164,7 @@ multiple categories.</li>
     <span class="nv">headers =</span>
       <span class="s2">&quot;Authorization&quot;</span><span class="o">:</span> <span class="s2">&quot;Bearer #{@options.access_token}&quot;</span>
 
-    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="s2">&quot;#{@api_endpoint}/user/flattrs&quot;</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">headers</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-15">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-15">&#182;</a>               </div>               <h2><em>function</em> flattrThing(id, callback)</h2>
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="s2">&quot;#{@api_endpoint}/user/flattrs&quot;</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">headers</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-17">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-17">&#182;</a>               </div>               <h2><em>function</em> flattrThing(id, callback)</h2>
 
 <p>Flattr the given thing.</p>
 
@@ -142,7 +178,7 @@ multiple categories.</li>
 
     <span class="nv">endpoint = </span><span class="s2">&quot;#{@api_endpoint}/things/#{id}/flattr&quot;</span>
 
-    <span class="nx">@client</span><span class="p">.</span><span class="nx">post</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <h2><em>function</em> flattrURL(url, username, callback)</h2>
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">post</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <h2><em>function</em> flattrURL(url, username, callback)</h2>
 
 <p>Flattr the given URL. If the URL is not already associated with a thing
 in the Flattr database this won't work without supplying a username.</p>
@@ -169,14 +205,14 @@ functionality to flattr URLs that do not match a thing.</p>
     <span class="nv">parameters =</span>
       <span class="nv">url: </span><span class="nx">url</span>
 
-    <span class="nx">@client</span><span class="p">.</span><span class="nx">post</span> <span class="s2">&quot;#{@api_endpoint}/flattr&quot;</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-17">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-17">&#182;</a>               </div>               <hr />             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <h1>Users</h1>
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">post</span> <span class="s2">&quot;#{@api_endpoint}/flattr&quot;</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <hr />             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-20">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-20">&#182;</a>               </div>               <h1>Users</h1>
 
-<p>Functions for interacting with the <strong>users</strong> resource.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <h2><em>function</em> user(username, callback)</h2>
+<p>Functions for interacting with the <strong>users</strong> resource.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-21">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-21">&#182;</a>               </div>               <h2><em>function</em> user(username, callback)</h2>
 
 <p>Get information for the user with the given username.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">user: </span><span class="nf">(username, callback) -&gt;</span>
     <span class="nv">endpoint = </span><span class="s2">&quot;#{@api_endpoint}/users/#{username}&quot;</span>
 
-    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-20">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-20">&#182;</a>               </div>               <h2><em>function</em> currentUser(callback)</h2>
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-22">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-22">&#182;</a>               </div>               <h2><em>function</em> currentUser(callback)</h2>
 
 <p>Get information for the currently authorized user. Requires an access
 token from Flattr.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">currentUser: </span><span class="nf">(callback) -&gt;</span>
@@ -186,19 +222,19 @@ token from Flattr.</p>             </td>             <td class="code">          
     <span class="nv">headers =</span>
       <span class="s2">&quot;Authorization&quot;</span><span class="o">:</span> <span class="s2">&quot;Bearer #{@options.access_token}&quot;</span>
 
-    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="s2">&quot;#{@api_endpoint}/user&quot;</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">headers</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-21">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-21">&#182;</a>               </div>               <hr />             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-22">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-22">&#182;</a>               </div>               <h1>Categories</h1>
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="s2">&quot;#{@api_endpoint}/user&quot;</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">headers</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-23">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-23">&#182;</a>               </div>               <hr />             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-24">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-24">&#182;</a>               </div>               <h1>Categories</h1>
 
-<p>Functions for interacting with the <strong>categories</strong> resource.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-23">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-23">&#182;</a>               </div>               <h2><em>function</em> categories(callback)</h2>
+<p>Functions for interacting with the <strong>categories</strong> resource.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-25">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-25">&#182;</a>               </div>               <h2><em>function</em> categories(callback)</h2>
 
 <p>Return a list of all available categories.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">categories: </span><span class="nf">(callback) -&gt;</span>
-    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="s2">&quot;#{@api_endpoint}/categories&quot;</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-24">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-24">&#182;</a>               </div>               <hr />             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-25">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-25">&#182;</a>               </div>               <h1>Languages</h1>
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="s2">&quot;#{@api_endpoint}/categories&quot;</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-26">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-26">&#182;</a>               </div>               <hr />             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-27">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-27">&#182;</a>               </div>               <h1>Languages</h1>
 
-<p>Functions for interacting with the <strong>languages</strong> resource.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-26">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-26">&#182;</a>               </div>               <h2><em>function</em> languages(callback)</h2>
+<p>Functions for interacting with the <strong>languages</strong> resource.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-28">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-28">&#182;</a>               </div>               <h2><em>function</em> languages(callback)</h2>
 
 <p>Get a list of available languages</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">languages: </span><span class="nf">(callback) -&gt;</span>
-    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="s2">&quot;#{@api_endpoint}/languages&quot;</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-27">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-27">&#182;</a>               </div>               <hr />             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-28">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-28">&#182;</a>               </div>               <h1>Auhtorization helpers</h1>
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">get</span> <span class="s2">&quot;#{@api_endpoint}/languages&quot;</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-29">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-29">&#182;</a>               </div>               <hr />             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-30">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-30">&#182;</a>               </div>               <h1>Auhtorization helpers</h1>
 
-<p>Helpers for authorizing your app.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-29">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-29">&#182;</a>               </div>               <h2><em>function</em> authenticate(scopes = [])</h2>
+<p>Helpers for authorizing your app.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-31">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-31">&#182;</a>               </div>               <h2><em>function</em> authenticate(scopes = [])</h2>
 
 <p>Generates a URL that you need to redirect your user to. The user will
 then be asked by Flattr to authorize your app. Once the user has
@@ -217,7 +253,7 @@ for this function to work.</p>
       <span class="nv">client_id: </span><span class="nx">@options</span><span class="p">.</span><span class="nx">key</span>
 
     <span class="k">if</span> <span class="nx">scopes</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
-      <span class="nv">parameters.scopes = </span><span class="nx">scopes</span><span class="p">.</span><span class="nx">join</span> <span class="s1">&#39; &#39;</span>
+      <span class="nv">parameters.scope = </span><span class="nx">scopes</span><span class="p">.</span><span class="nx">join</span> <span class="s1">&#39; &#39;</span>
 
     <span class="nv">queryparts = </span><span class="p">[]</span>
     <span class="k">for</span> <span class="nx">p</span><span class="p">,</span> <span class="nx">v</span> <span class="k">of</span> <span class="nx">parameters</span>
@@ -225,7 +261,7 @@ for this function to work.</p>
 
     <span class="nv">querystring = </span><span class="nx">queryparts</span><span class="p">.</span><span class="nx">join</span> <span class="s1">&#39;&amp;&#39;</span>
 
-    <span class="k">return</span> <span class="s2">&quot;http://flattr.com/oauth/authorize?#{querystring}&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-30">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-30">&#182;</a>               </div>               <h2><em>function</em> getAccessToken(code, callback)</h2>
+    <span class="k">return</span> <span class="s2">&quot;http://flattr.com/oauth/authorize?#{querystring}&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-32">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-32">&#182;</a>               </div>               <h2><em>function</em> getAccessToken(code, callback)</h2>
 
 <p>Generate an <code>access_token</code> from the <code>code</code> returned from Flattr.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">getAccessToken: </span><span class="nf">(code, callback) -&gt;</span>
     <span class="nv">options =</span>
@@ -237,7 +273,7 @@ for this function to work.</p>
       <span class="nv">redirect_uri: </span><span class="s2">&quot;http://127.0.0.1:1337&quot;</span>
 
     <span class="nv">endpoint = </span><span class="s2">&quot;https://flattr.com/oauth/token&quot;</span>
-    <span class="nx">@client</span><span class="p">.</span><span class="nx">post</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-31">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-31">&#182;</a>               </div>               <hr />             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-32">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-32">&#182;</a>               </div>               <h1>HTTP Client plugins.</h1>
+    <span class="nx">@client</span><span class="p">.</span><span class="nx">post</span> <span class="nx">endpoint</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="nx">callback</span></pre></div>             </td>           </tr>                               <tr id="section-33">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-33">&#182;</a>               </div>               <hr />             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-34">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-34">&#182;</a>               </div>               <h1>HTTP Client plugins.</h1>
 
 <p>The HTTP client plugins all follow a simple pattern. Methods named after
 the different HTTP methods <code>get</code>, <code>post</code>, etc. The method takes four
@@ -256,13 +292,13 @@ arguments:</p>
 <li><p>Callback</p>
 
 <p>A callback that takes two arguments, <code>error</code> and <code>data</code>.</p></li>
-</ul>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-33">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-33">&#182;</a>               </div>               <h1>NodeJS HTTP client</h1>
+</ul>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-35">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-35">&#182;</a>               </div>               <h1>NodeJS HTTP client</h1>
 
 <p>Serverside client based on the NodeJS HTTP client.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">NodeHTTP</span>
   <span class="nv">constructor: </span><span class="nf">() -&gt;</span>
     <span class="vi">@http = </span><span class="nx">require</span> <span class="s1">&#39;https&#39;</span>
     <span class="vi">@url  = </span><span class="nx">require</span> <span class="s1">&#39;url&#39;</span>
-    <span class="vi">@q    = </span><span class="nx">require</span> <span class="s1">&#39;querystring&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-34">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-34">&#182;</a>               </div>               <h2><em>function</em> get(endpoint, [parameters, headers], callback)</h2>
+    <span class="vi">@q    = </span><span class="nx">require</span> <span class="s1">&#39;querystring&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-36">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-36">&#182;</a>               </div>               <h2><em>function</em> get(endpoint, [parameters, headers], callback)</h2>
 
 <p>Wraps the HTTP get request method.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">get: </span><span class="nf">(endpoint, parameters, headers, callback) -&gt;</span>
     <span class="k">if</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">3</span>
@@ -289,10 +325,13 @@ arguments:</p>
         <span class="nx">data</span> <span class="o">+=</span> <span class="nx">chunk</span>
 
       <span class="nx">res</span><span class="p">.</span><span class="kc">on</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="nf">() -&gt;</span>
-        <span class="nx">callback</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span> <span class="nx">data</span>
+        <span class="k">if</span> <span class="nx">res</span><span class="p">.</span><span class="nx">statusCode</span> <span class="o">!=</span> <span class="mi">200</span>
+          <span class="nx">callback</span> <span class="nx">data</span><span class="p">,</span> <span class="kc">null</span>
+        <span class="k">else</span>
+          <span class="nx">callback</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span> <span class="nx">data</span>
 
       <span class="nx">res</span><span class="p">.</span><span class="kc">on</span> <span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="nf">(error) -&gt;</span>
-        <span class="nx">callback</span> <span class="nx">error</span><span class="p">,</span> <span class="kc">null</span></pre></div>             </td>           </tr>                               <tr id="section-35">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-35">&#182;</a>               </div>               <h2><em>function</em> post(endpoint, [parameters, options], callback)</h2>
+        <span class="nx">callback</span> <span class="nx">error</span><span class="p">,</span> <span class="kc">null</span></pre></div>             </td>           </tr>                               <tr id="section-37">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-37">&#182;</a>               </div>               <h2><em>function</em> post(endpoint, [parameters, options], callback)</h2>
 
 <p>Wraps the HTTP post request method.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">post: </span><span class="nf">(endpoint, parameters, options, callback) -&gt;</span>
     <span class="k">if</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">3</span>
@@ -322,7 +361,10 @@ arguments:</p>
         <span class="nx">data</span> <span class="o">+=</span> <span class="nx">chunk</span>
 
       <span class="nx">res</span><span class="p">.</span><span class="kc">on</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="nf">() -&gt;</span>
-        <span class="nx">callback</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span> <span class="nx">data</span>
+        <span class="k">if</span> <span class="nx">res</span><span class="p">.</span><span class="nx">statusCode</span> <span class="o">!=</span> <span class="mi">200</span>
+          <span class="nx">callback</span> <span class="nx">data</span><span class="p">,</span> <span class="kc">null</span>
+        <span class="k">else</span>
+          <span class="nx">callback</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span> <span class="nx">data</span>
 
       <span class="nx">res</span><span class="p">.</span><span class="kc">on</span> <span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="nf">(error) -&gt;</span>
         <span class="nx">callback</span> <span class="nx">error</span><span class="p">,</span> <span class="kc">null</span>
