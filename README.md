@@ -1,7 +1,7 @@
 Flattr API - JavaScript client
 ------------------------------
 
-[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=simme&url=https://github.com/simme/flattrjs&title=Flattr API for JavaScript&language=en_GB&tags=github&category=software)
+[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=simme&url=https://github.com/simme/flattrjs&title=FlattrJS&description=Flattr%20API%20client%20writtin%20in%20JavaScript&language=en_US&tags=flattr,javascript&category=software)
 
 This is a JavaScript client for interacting with the Flattr API.
 
