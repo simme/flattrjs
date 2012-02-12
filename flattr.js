@@ -55,11 +55,17 @@
       return this.client.get(endpoint, null, headers, callback);
     };
     Flattr.prototype.things = function(ids, callback) {
-      var endpoint, parameters;
+      var endpoint, headers, parameters;
       endpoint = "" + this.api_endpoint + "/things";
       parameters = {
         id: ids.join(',')
       };
+      headers = {};
+      if (this.options.access_token) {
+        headers = {
+          "Authorization": "Bearer " + this.options.access_token
+        };
+      }
       return this.client.get(endpoint, parameters, headers, callback);
     };
     Flattr.prototype.lookup = function(url, callback) {
@@ -80,6 +86,23 @@
         options.categories = options.categories.join(',');
       }
       return this.client.get(endpoint, options, callback);
+    };
+    Flattr.prototype.createThing = function(parameters, callback) {
+      var options;
+      if (!this.options.access_token) {
+        callback({
+          error: 'missing_access_token'
+        });
+      }
+      options = {
+        headers: {
+          "Authorization": "Bearer " + this.options.access_token
+        }
+      };
+      if (parameters.tags) {
+        parameters.tags = parameters.tags.join(',');
+      }
+      return this.client.post("" + this.api_endpoint + "/things", parameters, options, callback);
     };
     Flattr.prototype.userFlattrs = function(username, count, page, callback) {
       var endpoint, parameters;
@@ -263,7 +286,11 @@
           return data += chunk;
         });
         res.on('end', function() {
-          return callback(null, JSON.parse(data));
+          if (res.statusCode !== 200) {
+            return callback(data, null);
+          } else {
+            return callback(null, JSON.parse(data));
+          }
         });
         return res.on('error', function(error) {
           return callback(error, null);
@@ -297,7 +324,11 @@
           return data += chunk;
         });
         res.on('end', function() {
-          return callback(null, JSON.parse(data));
+          if (res.statusCode !== 200) {
+            return callback(data, null);
+          } else {
+            return callback(null, JSON.parse(data));
+          }
         });
         return res.on('error', function(error) {
           return callback(error, null);

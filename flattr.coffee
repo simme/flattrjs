@@ -145,6 +145,32 @@ class root.Flattr
 
     @client.get endpoint, options, callback
 
+  #
+  # ## _function_ createThing(parameters, callback)
+  #
+  # * `url` the thing's URL.
+  # * `title` the thing's title.
+  # * `description` the thing's description.
+  # * `category` the thing's category.
+  # * `language` the thing's language.
+  # * `tags` an array of tags.
+  # * `hidden` true if this thing is hidden.
+  #
+  # _All the parameters except **URL** is optional._
+  #
+  createThing: (parameters, callback) ->
+    if not @options.access_token
+      callback {error: 'missing_access_token'}
+
+    options =
+      headers:
+        "Authorization": "Bearer #{@options.access_token}"
+
+    if parameters.tags
+      parameters.tags = parameters.tags.join ','
+
+    @client.post "#{@api_endpoint}/things", parameters, options, callback
+
 # ---------------------------------------------------------------------------
 
   #
@@ -447,7 +473,10 @@ class NodeHTTP
         data += chunk
 
       res.on 'end', () ->
-        callback null, JSON.parse data
+        if res.statusCode != 200
+          callback data, null
+        else
+          callback null, JSON.parse data
 
       res.on 'error', (error) ->
         callback error, null
@@ -485,7 +514,10 @@ class NodeHTTP
         data += chunk
 
       res.on 'end', () ->
-        callback null, JSON.parse data
+        if res.statusCode != 200
+          callback data, null
+        else
+          callback null, JSON.parse data
 
       res.on 'error', (error) ->
         callback error, null
