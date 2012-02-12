@@ -19,11 +19,10 @@ class root.Flattr
   constructor: (@options = {}) ->
     @api_endpoint = "https://api.flattr.com/rest/v2"
 
-    if @options.accessToken?
-      @isAuthorized = true
-
     if @options.client == 'NodeHTTP'
       @client = new NodeHTTP()
+    else if typeof @options.client == 'object'
+      @client = @options.client
 
 # ---------------------------------------------------------------------------
 
