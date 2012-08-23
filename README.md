@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/simme/flattrjs.png)](http://travis-ci.org/simme/flattrjs)
 Flattr API - JavaScript client
 ------------------------------
 
